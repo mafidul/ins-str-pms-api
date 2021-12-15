@@ -1,0 +1,85 @@
+version: "3.8"
+
+services:
+  mysql:
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: mysqldb
+      MYSQL_USER: ${MYSQL_DEFAULT_USER:-root}
+      MYSQL_PASSWORD: ${MYSQL_DEFAULT_PASSWORD:-root}
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  rabbitmq:
+    image: rabbitmq:3.7.28-management
+    restart: always
+    #container_name: rabbitmq
+    environment:
+        RABBITMQ_ERLANG_COOKIE: ${RABBITMQ_ERLANG_COOKIE:-secret_cookie}
+        RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER:-admin}
+        RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS:-admin}
+    ports:
+        - 5672:5672    #amqp
+        - 15672:15672  #http
+    healthcheck:
+      test: [ "CMD", "rabbitmqctl", "status"]
+      timeout: 20s
+      retries: 5
+  ins-str-pms-api:
+    image: ins-str-pms-api
+    environment:
+      DB_NAME: mysqldb
+      DB_SERVER: mysql
+      DB_USER: root
+      DB_PASS: root
+      DB_PORT: 3306
+      RMQ_HOST: rabbitmq
+      RMQ_PASS: admin
+      RMQ_PORT: 5672
+      RMQ_USER: admin
+    ports:
+      - "8089:8089"
+    depends_on:
+      mysql:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+
+  ins-assign-prj-api:
+    image: ins-assign-prj-api
+    environment:
+      DB_NAME: mysqldb
+      DB_SERVER: mysql
+      DB_USER: root
+      DB_PASS: root
+      DB_PORT: 3306
+      RMQ_HOST: rabbitmq
+      RMQ_PASS: admin
+      RMQ_PORT: 5672
+      RMQ_USER: admin
+      APP_HOST: 192.168.100.10
+      APP_PORT: 8089
+      APP_RES_PORT: 8082
+    ports:
+      - "8081:8081"
+
+  ins-resource-api:
+    image: ins-resource-api
+    environment:
+      DB_NAME: mysqldb
+      DB_SERVER: mysql
+      DB_USER: root
+      DB_PASS: root
+      DB_PORT: 3306
+      RMQ_HOST: rabbitmq
+      RMQ_PASS: admin
+      RMQ_PORT: 5672
+      RMQ_USER: admin
+    ports:
+      - "8082:8082"
