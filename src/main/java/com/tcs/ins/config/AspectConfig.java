@@ -18,7 +18,6 @@ public class AspectConfig {
 	@Pointcut("execution( * com.tcs.ins.pms.service.PMSService.*(..))")
 	public void monitor() {
 	}
-
 	@Bean
 	PerformanceMonitorInterceptor performanceMonitorInterceptor() {
 		return new PerformanceMonitorInterceptor(false);
