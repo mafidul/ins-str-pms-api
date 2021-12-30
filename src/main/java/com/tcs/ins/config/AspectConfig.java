@@ -22,7 +22,6 @@ public class AspectConfig {
 	PerformanceMonitorInterceptor performanceMonitorInterceptor() {
 		return new PerformanceMonitorInterceptor(false);
 	}
-
 	@Bean
 	Advisor performanceMonitorAdvisor(PerformanceMonitorInterceptor performanceMonitorInterceptor) {
 		AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
