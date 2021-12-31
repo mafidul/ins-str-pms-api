@@ -120,7 +120,6 @@ class PMSProjectDetailApi {
 		ProjectDetailModel update = pMSService.updateProject(projectDetailModel);
 		return ResponseEntity.ok(update);
 	}
-
 	@DeleteMapping(path = "/{id}")
 	ResponseEntity<Void> deleteProject(@PathVariable Long id) {
 		pMSService.deleteProject(id);
